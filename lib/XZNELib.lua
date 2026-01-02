@@ -16668,30 +16668,154 @@ function aa.CreateWindow(ax, ay)
 end
 
 -- ========================================
--- V5 COMPATIBILITY LAYER
+-- V5 COMPATIBILITY LAYER - COMPLETE
 -- ========================================
 
--- MakeNotify wrapper
+-- Notify wrapper
 function aa:MakeNotify(options)
     return aa:Notify(options)
 end
+function aa.Notify(_, options)
+    return aa:Notify(options)
+end
 
--- MakeGui wrapper  
+-- MakeGui wrapper with FULL V5 API
 function aa:MakeGui(options)
     options = options or {}
     
+    -- Create window with WindUI API
     local windowOptions = {
-        Title = options.NameHub or "XZNE Hub",
-        Author = options.Description,
-        Icon = "shield",
+        Title = options.NameHub or options.Title or "XZNE Hub",
+        Author = options.Description or "",
+        Icon = options.Icon or "shield",
         Theme = "Dark"
     }
     
-    local window = aa:CreateWindow(windowOptions)
+    local window = aa:Create(windowOptions)
     
-    -- Add V5-style methods to window
+    -- Add V5-style methods
     function window:DestroyGui()
         window:Destroy()
+    end
+    
+    -- CreateTab wrapper
+    function window:CreateTab(tabOptions)
+        tabOptions = tabOptions or {}
+        
+        local tab = window:Tab({
+            Title = tabOptions.Name or tabOptions.Title or "Tab",
+            Icon = tabOptions.Icon or "home"
+        })
+        
+        -- AddSection wrapper
+        function tab:AddSection(sectionTitle)
+            local section = tab:Section({
+                Title = sectionTitle or "Section"
+            })
+            
+            -- AddButton wrapper
+            function section:AddButton(btnOptions)
+                return section:Button({
+                    Title = btnOptions.Title,
+                    Desc = btnOptions.Content,
+                    Icon = btnOptions.Icon,
+                    Callback = btnOptions.Callback
+                })
+            end
+            
+            -- AddToggle wrapper
+            function section:AddToggle(togOptions)
+                local toggle = section:Toggle({
+                    Title = togOptions.Title,
+                    Desc = togOptions.Content,
+                    Value = togOptions.Default or false,
+                    Callback = togOptions.Callback
+                })
+                
+                function toggle:Set(val)
+                    toggle:SetValue(val)
+                end
+                
+                return toggle
+            end
+            
+            -- AddSlider wrapper
+            function section:AddSlider(sliderOptions)
+                local slider = section:Slider({
+                    Title = sliderOptions.Title,
+                    Desc = sliderOptions.Content,
+                    Min = sliderOptions.Min or 0,
+                    Max = sliderOptions.Max or 100,
+                    Default = sliderOptions.Default or 50,
+                    Increment = sliderOptions.Increment or 1,
+                    Callback = sliderOptions.Callback
+                })
+                
+                function slider:Set(val)
+                    slider:SetValue(val)
+                end
+                
+                return slider
+            end
+            
+            -- AddInput wrapper
+            function section:AddInput(inputOptions)
+                local input = section:Input({
+                    Title = inputOptions.Title,
+                    Desc = inputOptions.Content,
+                    Value = inputOptions.Default or "",
+                    Placeholder = inputOptions.Placeholder or "Enter text...",
+                    Callback = inputOptions.Callback
+                })
+                
+                function input:Set(val)
+                    input:SetValue(val)
+                end
+                
+                return input
+            end
+            
+            -- AddDropdown wrapper
+            function section:AddDropdown(dropOptions)
+                local dropdown = section:Dropdown({
+                    Title = dropOptions.Title,
+                    Desc = dropOptions.Content,
+                    Values = dropOptions.Options or {},
+                    Value = dropOptions.Default,
+                    Multi = dropOptions.Multi or false,
+                    Callback = dropOptions.Callback
+                })
+                
+                function dropdown:Refresh(newOptions, newDefault)
+                    dropdown:SetValues(newOptions)
+                    if newDefault then
+                        dropdown:SetValue(newDefault)
+                    end
+                end
+                
+                return dropdown
+            end
+            
+            -- AddParagraph wrapper  
+            function section:AddParagraph(paraOptions)
+                local para = section:Paragraph({
+                    Title = paraOptions.Title,
+                    Content = paraOptions.Content or ""
+                })
+                
+                function para:Set(newContent)
+                    if para.SetDesc then
+                        para:SetDesc(newContent)
+                    end
+                end
+                
+                return para
+            end
+            
+            return section
+        end
+        
+        return tab
     end
     
     return window

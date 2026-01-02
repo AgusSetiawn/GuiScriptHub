@@ -43,17 +43,15 @@ local Window = Library:MakeGui({
 })
 
 local Tab = Window:CreateTab({
-    Title = "Main",
-    Icon = "home"
+    Name = "Main",
+    Icon = "rbxassetid://10723407389"
 })
 
-local Section = Tab:Section({
-    Title = "Test Features"
-})
+local Section = Tab:AddSection("Test Features")
 
-Section:Button({
+Section:AddButton({
     Title = "Test Button",
-    Desc = "Click me!",
+    Content = "Click me!",
     Callback = function()
         Library:MakeNotify({
             Title = "Button Clicked!",
@@ -63,34 +61,37 @@ Section:Button({
     end
 })
 
-Section:Toggle({
+Section:AddToggle({
     Title = "Test Toggle",
-    Desc = "Toggle me!",
-    Value = false,
+    Content = "Toggle me!",
+    Default = false,
     Callback = function(value)
         print("Toggle:", value)
     end
 })
 
-Section:Slider({
+Section:AddSlider({
     Title = "Test Slider",
+    Content = "Drag the slider",
     Min = 0,
     Max = 100,
     Default = 50,
+    Increment = 1,
     Callback = function(value)
         print("Slider:", value)
     end
 })
 
-Section:Input({
+Section:AddInput({
     Title = "Test Input",
-    Placeholder = "Type something...",
+    Content = "Type something...",
+    Default = "Hello World",
     Callback = function(value)
         print("Input:", value)
     end
 })
 
-Section:Paragraph({
+Section:AddParagraph({
     Title = "Success!",
     Content = "✅ All features loaded successfully!\n\nNo ImageRectSize errors!\nNo syntax errors!\nV5 compatibility working!"
 })

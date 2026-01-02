@@ -626,12 +626,58 @@ function S9_:MakeGui(S91_arg0)
 	S111_.BorderColor3 = Color3.fromRGB(0, 0, 0)
 	S111_.BorderSizePixel = 0
 	S111_.Position = UDim2.new(0, 9, 0, 50)
-	S111_.Size = UDim2.new(0, S92_["Tab Width"], 1, -59)
+	S111_.Size = UDim2.new(0, S92_["Tab Width"], 1, -130) -- Changed: reduced height to make room for greeting
 	S111_.Name = "LayersTab"
 	S111_.Parent = S97_
 
 	S112_.CornerRadius = UDim.new(0, 2)
 	S112_.Parent = S111_
+	
+	-- User Greeting Panel (NEW 3-PANEL FEATURE)
+	local UserGreeting = Instance.new("Frame");
+	local GreetingCorner = Instance.new("UICorner");
+	local UserNameLabel = Instance.new("TextLabel");
+	local WelcomeLabel = Instance.new("TextLabel");
+	
+	UserGreeting.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+	UserGreeting.BackgroundTransparency = 0.3
+	UserGreeting.BorderSizePixel = 0
+	UserGreeting.Position = UDim2.new(0, 9, 1, -75)
+	UserGreeting.Size = UDim2.new(0, S92_["Tab Width"], 0, 70)
+	UserGreeting.Name = "UserGreeting"
+	UserGreeting.Parent = S97_
+	
+	GreetingCorner.CornerRadius = UDim.new(0, 6)
+	GreetingCorner.Parent = UserGreeting
+	
+	WelcomeLabel.Font = Enum.Font.GothamBold
+	WelcomeLabel.Text = "Welcome,"
+	WelcomeLabel.TextColor3 = Color3.fromRGB(150, 150, 150)
+	WelcomeLabel.TextSize = 11
+	WelcomeLabel.TextXAlignment = Enum.TextXAlignment.Left
+	WelcomeLabel.BackgroundTransparency = 1
+	WelcomeLabel.Position = UDim2.new(0, 8, 0, 8)
+	WelcomeLabel.Size = UDim2.new(1, -16, 0, 15)
+	WelcomeLabel.Parent = UserGreeting
+	
+	UserNameLabel.Font = Enum.Font.GothamBold
+	UserNameLabel.Text = S3_.Name or "Player"
+	UserNameLabel.TextColor3 = S92_.Color or Color3.fromRGB(255, 0, 255)
+	UserNameLabel.TextSize = 14
+	UserNameLabel.TextXAlignment = Enum.TextXAlignment.Left
+	UserNameLabel.TextTruncate = Enum.TextTruncate.AtEnd
+	UserNameLabel.BackgroundTransparency = 1
+	UserNameLabel.Position = UDim2.new(0, 8, 0, 24)
+	UserNameLabel.Size = UDim2.new(1, -16, 0, 18)
+	UserNameLabel.Parent = UserGreeting
+	
+	-- Add subtle glow effect to greeting (WindUI enhancement)
+	local GreetingStroke = Instance.new("UIStroke");
+	GreetingStroke.Color = S92_.Color or Color3.fromRGB(255, 0, 255)
+	GreetingStroke.Thickness = 0.8
+	GreetingStroke.Transparency = 0.7
+	GreetingStroke.Parent = UserGreeting
+
 
 	S113_.AnchorPoint = Vector2.new(0.5, 0)
 	S113_.BackgroundColor3 = Color3.fromRGB(255, 255, 255)

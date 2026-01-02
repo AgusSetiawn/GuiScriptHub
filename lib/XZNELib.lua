@@ -16667,4 +16667,34 @@ function aa.CreateWindow(ax, ay)
     return aE
 end
 
+-- ========================================
+-- V5 COMPATIBILITY LAYER
+-- ========================================
+
+-- MakeNotify wrapper
+function aa:MakeNotify(options)
+    return aa:Notify(options)
+end
+
+-- MakeGui wrapper  
+function aa:MakeGui(options)
+    options = options or {}
+    
+    local windowOptions = {
+        Title = options.NameHub or "XZNE Hub",
+        Author = options.Description,
+        Icon = "shield",
+        Theme = "Dark"
+    }
+    
+    local window = aa:CreateWindow(windowOptions)
+    
+    -- Add V5-style methods to window
+    function window:DestroyGui()
+        window:Destroy()
+    end
+    
+    return window
+end
+
 return aa

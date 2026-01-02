@@ -16667,4 +16667,13 @@ function aa.CreateWindow(ax, ay)
     return aE
 end
 
+-- V5 Minimal Wrapper
+function aa:MakeNotify(options)
+    return aa:Notify(options)
+end
+
+function aa:MakeGui(options)
+    return aa:Create(options)
+end
+
 return aa

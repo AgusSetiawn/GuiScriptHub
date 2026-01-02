@@ -16676,9 +16676,24 @@ function aa:MakeNotify(options)
     return aa:Notify(options)
 end
 
--- Expose MakeGui as V5-style entry point
+-- Expose MakeGui as V5-style entry point  
 function aa:MakeGui(options)
-    return aa:Create(options)
+    -- WindUI uses the function at line ~16258 that takes options table
+    -- Call it directly with proper options mapping
+    options = options or {}
+    
+    local windOptions = {
+        Title = options.NameHub or options.Title or "XZNE Hub",
+        Author = options.Description or "",
+        Icon = options.Icon or "shield",
+        Theme = "Dark",
+        Transparent = options.Transparent,
+        Acrylic = options.Acrylic
+    }
+    
+    -- Call the actual WindUI creation function (the big function before return aa)
+    -- This is function starting around line 16258 in original WindUI
+    return aa.CreateWindow(windOptions)
 end
 
 return aa

@@ -56,8 +56,8 @@ do
         }
     end
     function a.b()
-        local b = (cloneref or clonereference or function(obj)
-                return obj
+        local b = (cloneref or clonereference or function(b)
+                return b
             end)
 
         local d = b(game:GetService("RunService"))
@@ -67,17 +67,12 @@ do
         local h = b(game:GetService("HttpService"))
         local i = d.Heartbeat
 
-
-        -- [ XZNE OPTIMIZATION: Removed External Icon Loader ]
-        -- The original WindUI loaded a massive icon library from GitHub which caused lag.
-        -- We replaced it with a lightweight local handler.
-
+        -- Local lightweight icon implementation (replaces external GitHub loader)
         local l = {}
         
-        -- Simple internal icon map for common names
         local iconMap = {
-            ["house"] = "rbxassetid://10709782430",
-            ["home"] = "rbxassetid://10709782430",
+            ["house"] = "rbxassetid://10723407389",
+            ["home"] = "rbxassetid://10723407389",
             ["settings"] = "rbxassetid://10734950309",
             ["user"] = "rbxassetid://10709782342",
             ["search"] = "rbxassetid://10709782230",
@@ -86,81 +81,52 @@ do
             ["x"] = "rbxassetid://10709782497",
             ["menu"] = "rbxassetid://10709782497",
             ["info"] = "rbxassetid://10709782459",
-            ["layers"] = "rbxassetid://10709782172",
-            ["shield"] = "rbxassetid://10709782172",
-            ["wind"] = "rbxassetid://10709782172"
+            ["key"] = "rbxassetid://10709782230",
+            ["shield"] = "rbxassetid://10723407389",
+            ["chevron-down"] = "rbxassetid://10709782497",
+            ["arrow-right"] = "rbxassetid://10709782497"
         }
-
-        function l.Icon(name, _, themed)
+        
+        function l.Icon(name, rect, themed)
             if not name then return nil end
             name = tostring(name):lower()
             
-            -- Default Mapping
-            local id = iconMap[name] or "rbxassetid://10709782172"
-            if name:find("rbxassetid://") then id = name end
-
-            -- Mock Rect Data (0s to avoid sprite sheet chaos, just simple images)
-            local rect = {
+            local id = iconMap[name] or name
+            if not name:find("rbxassetid://") and iconMap[name] then
+                id = iconMap[name]
+            end
+            
+            local rectData = rect or {
                 ImageRectSize = Vector2.new(0, 0),
                 ImageRectPosition = Vector2.new(0, 0)
             }
             
-            -- Special handling for 'x' if using spritesheets in original, 
-            -- but for our mock we just want to avoid nil error.
-            -- If 'x' specifically needs a real icon:
-            if name == "x" then
-                 id = "rbxassetid://10709782497"
-            end
-
-            return { id, rect }
-        end
-
-        function l.AddIcons(json_content, type_name) 
-            -- Stub: Original WindUI loads icons from JSON, we use local map
+            return {id, rectData}
         end
         
-        function l.Init(ctor, name) 
-            -- Initialize icon system with constructor reference
-            -- ctor = p.New function reference
-            -- name = "Icon" (identifier)
-            -- This was originally used to setup icon loading, now just a placeholder
-        end
+        function l.SetIconsType(iconType) end
+        function l.AddIcons(json, type) end
+        function l.Init(ctor, name) end
         
-        -- Fix Image signature to match call at line 1054: 
-        -- b.Image(i.Icon, i.Title .. ":" .. i.Icon, 0, h.Window, "Notification", i.IconThemed)
-        function l.Image(v, x, B, C, F, G, H, J)
-             local iconData = l.Icon(v)
-             local imgId = ""
-             local imgRect = Vector2.new(0,0)
-             local imgPos = Vector2.new(0,0)
-
-             if iconData then
-                 imgId = iconData[1]
-                 imgRect = iconData[2].ImageRectSize
-                 imgPos = iconData[2].ImageRectPosition
-             end
-
-             local frame = Instance.new("Frame")
-             local img = Instance.new("ImageLabel", frame)
-             img.Name = "ImageLabel"
-             img.Size = UDim2.new(1,0,1,0)
-             img.BackgroundTransparency = 1
-             img.Image = imgId
-             img.ImageRectSize = imgRect
-             img.ImageRectOffset = imgPos
-             
-             -- Handle Color if passed in G (IconThemed/Color?) - arg mapping is fuzzy, just mock basic
-             img.ImageColor3 = Color3.new(1,1,1)
-             
-             -- Return structure expects {IconFrame, ImageLabel} or similar
-             -- Based on usage `j.ImageLabel` at 1059:
-             -- `j` is the return value of `b.Image`.
-             -- 1058 calls `j:FindFirstChild("ImageLabel")`.
-             -- So `j` should be the Frame, containing ImageLabel.
-             
-             return frame
+        function l.Image(options)
+            local icon = options.Icon or ""
+            local iconData = l.Icon(icon)
+            
+            local frame = Instance.new("Frame")
+            frame.Name = "IconFrame"
+            frame.Size = options.Size or UDim2.new(1, 0, 1, 0)
+            frame.BackgroundTransparency = 1
+            
+            local img = Instance.new("ImageLabel", frame)
+            img.Name = "ImageLabel"
+            img.Size = UDim2.new(1, 0, 1, 0)
+            img.BackgroundTransparency = 1
+            img.Image = iconData[1]
+            img.ImageRectSize = iconData[2].ImageRectSize
+            img.ImageRectOffset = iconData[2].ImageRectPosition
+            
+            return {IconFrame = frame, ImageLabel = img}
         end
-
 
         local m
 
@@ -1104,14 +1070,13 @@ do
 
             local l
             if i.CanClose then
-                local closeIcon = b.Icon("x")
                 l =
                     e(
                     "ImageButton",
                     {
-                        Image = closeIcon[1],
-                        ImageRectSize = closeIcon[2].ImageRectSize,
-                        ImageRectOffset = closeIcon[2].ImageRectPosition,
+                        Image = b.Icon "x"[1],
+                        ImageRectSize = b.Icon "x"[2].ImageRectSize,
+                        ImageRectOffset = b.Icon "x"[2].ImageRectPosition,
                         BackgroundTransparency = 1,
                         Size = UDim2.new(0, 16, 0, 16),
                         Position = UDim2.new(1, -g.UIPadding, 0, g.UIPadding),
@@ -13369,14 +13334,13 @@ end
                 }
             )
 
-            local closeIcon = af.Icon("x")
             local ap =
                 ah(
                 "ImageLabel",
                 {
-                    Image = closeIcon[1],
-                    ImageRectSize = closeIcon[2].ImageRectSize,
-                    ImageRectOffset = closeIcon[2].ImageRectPosition,
+                    Image = af.Icon "x"[1],
+                    ImageRectSize = af.Icon "x"[2].ImageRectSize,
+                    ImageRectOffset = af.Icon "x"[2].ImageRectPosition,
                     BackgroundTransparency = 1,
                     ThemeTag = {
                         ImageColor3 = "Icon"
@@ -14184,14 +14148,13 @@ end
                     Active = false
                 },
                 {
-                    local expandIcon = aj.Icon("expand")
                     ak(
                         "ImageLabel",
                         {
                             Size = UDim2.new(0, 70, 0, 70),
-                            Image = expandIcon[1],
-                            ImageRectOffset = expandIcon[2].ImageRectPosition,
-                            ImageRectSize = expandIcon[2].ImageRectSize,
+                            Image = aj.Icon "expand"[1],
+                            ImageRectOffset = aj.Icon "expand"[2].ImageRectPosition,
+                            ImageRectSize = aj.Icon "expand"[2].ImageRectSize,
                             BackgroundTransparency = 1,
                             Position = UDim2.new(0.5, 0, 0.5, 0),
                             AnchorPoint = Vector2.new(0.5, 0.5),
@@ -14214,109 +14177,127 @@ end
                 }
             )
 
+            as.UIElements.SideBar =
+                ak(
+                "ScrollingFrame",
+                {
+                    Size = UDim2.new(
+                        1,
+                        as.ScrollBarEnabled and -3 - (as.UIPadding / 2) or 0,
+                        1,
+                        not as.HideSearchBar and -45 or 0
+                    ),
+                    Position = UDim2.new(0, 0, 1, 0),
+                    AnchorPoint = Vector2.new(0, 1),
+                    BackgroundTransparency = 1,
+                    ScrollBarThickness = 0,
+                    ElasticBehavior = "Never",
+                    CanvasSize = UDim2.new(0, 0, 0, 0),
+                    AutomaticCanvasSize = "Y",
+                    ScrollingDirection = "Y",
+                    ClipsDescendants = true,
+                    VerticalScrollBarPosition = "Left"
+                },
+                {
+                    ak(
+                        "Frame",
+                        {
+                            BackgroundTransparency = 1,
+                            AutomaticSize = "Y",
+                            Size = UDim2.new(1, 0, 0, 0),
+                            Name = "Frame"
+                        },
+                        {
+                            ak(
+                                "UIPadding",
+                                {
+                                    PaddingBottom = UDim.new(0, as.UIPadding / 2)
+                                }
+                            ),
+                            ak(
+                                "UIListLayout",
+                                {
+                                    SortOrder = "LayoutOrder",
+                                    Padding = UDim.new(0, as.Gap)
+                                }
+                            )
+                        }
+                    ),
+                    ak(
+                        "UIPadding",
+                        {
+                            PaddingLeft = UDim.new(0, as.UIPadding / 2),
+                            PaddingRight = UDim.new(0, as.UIPadding / 2)
+                        }
+                    )
+                }
+            )
 
-            -- [ XZNE SPLIT LAYOUT IMPLEMENTATION ]
-            local SplitGap = 10
-            local HeaderHeight = 65 
-            local UserHeight = 55
-            local SideBarWidth = as.SideBarWidth
+            as.UIElements.SideBarContainer =
+                ak(
+                "Frame",
+                {
+                    Size = UDim2.new(
+                        0,
+                        as.SideBarWidth,
+                        1,
+                        as.User.Enabled and -as.Topbar.Height - 42 - (as.UIPadding * 2) or -as.Topbar.Height
+                    ),
+                    Position = UDim2.new(0, 0, 0, as.Topbar.Height),
+                    BackgroundTransparency = 1,
+                    Visible = true
+                },
+                {
+                    ak(
+                        "Frame",
+                        {
+                            Name = "Content",
+                            BackgroundTransparency = 1,
+                            Size = UDim2.new(1, 0, 1, not as.HideSearchBar and -45 - as.UIPadding / 2 or 0),
+                            Position = UDim2.new(0, 0, 1, 0),
+                            AnchorPoint = Vector2.new(0, 1)
+                        }
+                    ),
+                    as.UIElements.SideBar
+                }
+            )
 
-            -- 1. HEADER PANEL (Top Left)
-            as.UIElements.HeaderPanel = ak("Frame", {
-                Size = UDim2.new(0, SideBarWidth, 0, HeaderHeight),
-                Position = UDim2.new(0, 0, 0, 0),
-                BackgroundTransparency = 1,
-                Name = "HeaderPanel"
-            }, {
-                 -- Gradient Background for Header
-                 aj.NewRoundFrame(as.UICorner, "Squircle", {
-                    Size = UDim2.new(1,0,1,0), 
-                    ThemeTag = {ImageColor3 = "Accent"}, 
-                    ImageTransparency = 0,
-                    Name = "Background"
-                 }, {
-                    ak("UIGradient", {
-                        Color = ColorSequence.new({
-                            ColorSequenceKeypoint.new(0, Color3.new(1,1,1)),
-                            ColorSequenceKeypoint.new(1, Color3.new(0.7,0.7,0.7))
-                        }),
-                        Rotation = 45
-                    })
-                 }),
-                 -- Title and Icon placeholders (will be populated by Main assembly or logic below)
-                 ak("Frame", {
-                     Size = UDim2.new(1,0,1,0),
-                     BackgroundTransparency = 1,
-                     Name = "Content"
-                 })
-            })
+            if as.ScrollBarEnabled then
+                ao(as.UIElements.SideBar, as.UIElements.SideBarContainer.Content, as, 3)
+            end
 
-            -- 2. SIDEBAR PANEL (Middle Left - Tabs)
-            as.UIElements.SideBar = ak("ScrollingFrame", {
-                Size = UDim2.new(1, 0, 1, 0),
-                Position = UDim2.new(0, 0, 0, 0),
-                BackgroundTransparency = 1,
-                ScrollBarThickness = 0,
-                CanvasSize = UDim2.new(0, 0, 0, 0),
-                AutomaticCanvasSize = "Y",
-                ScrollingDirection = "Y",
-                ClipsDescendants = true
-            }, {
-                ak("UIListLayout", { SortOrder = "LayoutOrder", Padding = UDim.new(0, as.Gap) }),
-                ak("UIPadding", { 
-                    PaddingLeft = UDim.new(0, as.UIPadding/2), 
-                    PaddingRight = UDim.new(0, as.UIPadding/2),
-                    PaddingTop = UDim.new(0, as.UIPadding/2),
-                    PaddingBottom = UDim.new(0, as.UIPadding/2)
-                })
-            })
-
-            as.UIElements.SideBarContainer = ak("Frame", {
-                 Size = UDim2.new(0, SideBarWidth, 1, -(HeaderHeight + SplitGap + UserHeight + SplitGap)),
-                 Position = UDim2.new(0, 0, 0, HeaderHeight + SplitGap),
-                 BackgroundTransparency = 1,
-                 Name = "SideBarPanel"
-            }, {
-                aj.NewRoundFrame(as.UICorner, "Squircle", {
-                    Size = UDim2.new(1,0,1,0), 
-                    ThemeTag = {ImageColor3 = "WindowBackground"}, 
-                    ImageTransparency = 0
-                }),
-                as.UIElements.SideBar
-            })
-
-            -- 3. CONTENT PANEL (Right)
-            as.UIElements.MainBar = ak("Frame", {
-                 Size = UDim2.new(1, -(SideBarWidth + SplitGap), 1, 0),
-                 Position = UDim2.new(1, 0, 0, 0),
-                 AnchorPoint = Vector2.new(1, 0),
-                 BackgroundTransparency = 1,
-                 Name = "MainContentPanel"
-            }, {
-                 aj.NewRoundFrame(as.UICorner, "Squircle", {
-                    Size = UDim2.new(1,0,1,0), 
-                    ThemeTag = {ImageColor3 = "WindowBackground"}, 
-                    ImageTransparency = 0,
-                    Name = "Background"
-                 }),
-                 ak("UIPadding", {
-                    PaddingLeft = UDim.new(0, as.UIPadding), 
-                    PaddingRight = UDim.new(0, as.UIPadding), 
-                    PaddingBottom = UDim.new(0, as.UIPadding),
-                    PaddingTop = UDim.new(0, as.UIPadding)
-                 })
-            })
-
-            -- 4. USER PANEL Placeholder (Bottom Left)
-            -- We create a dedicated container for the User profile to float in
-            as.UIElements.UserPanel = ak("Frame", {
-                Size = UDim2.new(0, SideBarWidth, 0, UserHeight),
-                Position = UDim2.new(0, 0, 1, 0),
-                AnchorPoint = Vector2.new(0, 1),
-                BackgroundTransparency = 1,
-                Name = "UserPanel"
-            })
-
+            as.UIElements.MainBar =
+                ak(
+                "Frame",
+                {
+                    Size = UDim2.new(1, -as.UIElements.SideBarContainer.AbsoluteSize.X, 1, -as.Topbar.Height),
+                    Position = UDim2.new(1, 0, 1, 0),
+                    AnchorPoint = Vector2.new(1, 1),
+                    BackgroundTransparency = 1
+                },
+                {
+                    aj.NewRoundFrame(
+                        as.UICorner - (as.UIPadding / 2),
+                        "Squircle",
+                        {
+                            Size = UDim2.new(1, 0, 1, 0),
+                            ImageColor3 = Color3.new(1, 1, 1),
+                            ZIndex = 3,
+                            ImageTransparency = .95,
+                            Name = "Background",
+                            Visible = not as.HidePanelBackground
+                        }
+                    ),
+                    ak(
+                        "UIPadding",
+                        {
+                            PaddingLeft = UDim.new(0, as.UIPadding / 2),
+                            PaddingRight = UDim.new(0, as.UIPadding / 2),
+                            PaddingBottom = UDim.new(0, as.UIPadding / 2)
+                        }
+                    )
+                }
+            )
 
             local az =
                 ak(
@@ -14359,12 +14340,16 @@ end
 
                 aA =
                     ak(
-
                     "TextButton",
                     {
-                        Size = UDim2.new(1, -as.UIPadding, 1, -as.UIPadding),
-                        Position = UDim2.new(0.5, 0, 0.5, 0),
-                        AnchorPoint = Vector2.new(0.5, 0.5),
+                        Size = UDim2.new(
+                            0,
+                            (as.UIElements.SideBarContainer.AbsoluteSize.X) - (as.UIPadding / 2),
+                            0,
+                            42 + (as.UIPadding)
+                        ),
+                        Position = UDim2.new(0, as.UIPadding / 2, 1, -(as.UIPadding / 2)),
+                        AnchorPoint = Vector2.new(0, 1),
                         BackgroundTransparency = 1,
                         Visible = as.User.Enabled or false
                     },
@@ -14789,14 +14774,6 @@ end
                 }
             )
 
-
-            -- [ XZNE SPLIT LAYOUT: Main Assembly ]
-            
-            -- Setup User Button Parent
-            if aA then
-                aA.Parent = as.UIElements.UserPanel
-            end
-
             as.UIElements.Main =
                 ak(
                 "Frame",
@@ -14811,10 +14788,30 @@ end
                 {
                     ar.WindUI.UIScaleObj,
                     as.AcrylicPaint and as.AcrylicPaint.Frame or nil,
-                    az, -- Shadow/Blur
+                    az,
+                    aj.NewRoundFrame(
+                        as.UICorner,
+                        "Squircle",
+                        {
+                            ImageTransparency = 1,
+                            Size = UDim2.new(1, 0, 1, -240),
+                            AnchorPoint = Vector2.new(0.5, 0.5),
+                            Position = UDim2.new(0.5, 0, 0.5, 0),
+                            Name = "Background",
+                            ThemeTag = {
+                                ImageColor3 = "WindowBackground"
+                            }
+                        },
+                        {
+                            aE,
+                            d,
+                            aw
+                        }
+                    ),
                     UIStroke,
-                    av, ax, ay, -- Resizers
-                    
+                    av,
+                    ax,
+                    ay,
                     ak(
                         "Frame",
                         {
@@ -14825,52 +14822,148 @@ end
                             ZIndex = 97
                         },
                         {
-                            ak("UICorner", { CornerRadius = UDim.new(0, as.UICorner) }),
-                            
-                            -- 1. HEADER (TOPBAR)
-                            (function()
-                                local hp = as.UIElements.HeaderPanel
-                                hp.Name = "Topbar"
-                                
-                                -- Flattened hierarchy: Topbar.Left, Topbar.Right, Topbar.Center
-                                local left = ak("Frame", {
-                                    Name = "Left", Parent = hp, Size = UDim2.new(0,0,1,0), AutomaticSize="X", BackgroundTransparency=1
-                                }, {
-                                    ak("UIListLayout", {SortOrder="LayoutOrder", FillDirection="Horizontal", VerticalAlignment="Center", Padding=UDim.new(0, 10)}),
-                                    ak("UIPadding", {PaddingLeft=UDim.new(0,12)})
-                                })
-                                
-                                if f then f.Parent = left end
-                                if h then h.Parent = left end
-                                
-                                local right = ak("Frame", {
-                                    Name = "Right", Parent = hp, Size = UDim2.new(0,0,1,0), AutomaticSize="X", BackgroundTransparency=1, AnchorPoint=Vector2.new(1,0), Position=UDim2.new(1,0,0,0)
-                                }, {
-                                     ak("UIListLayout", {SortOrder="LayoutOrder", FillDirection="Horizontal", VerticalAlignment="Center", Padding=UDim.new(0, 4)}),
-                                     ak("UIPadding", {PaddingRight=UDim.new(0,12)})
-                                })
-                                
-                                local center = ak("Frame", {
-                                    Name = "Center", Parent = hp, Size=UDim2.new(1,0,1,0), BackgroundTransparency=1, Visible=false
-                                })
-                                return hp
-                            end)(),
-                            
-                            -- 2. SIDEBAR PANEL
+                            ak(
+                                "UICorner",
+                                {
+                                    CornerRadius = UDim.new(0, as.UICorner)
+                                }
+                            ),
                             as.UIElements.SideBarContainer,
-                            
-                            -- 3. USER PANEL
-                            as.UIElements.UserPanel,
-                            
-                            -- 4. MAIN CONTENT PANEL
                             as.UIElements.MainBar,
-                            
-                            aC -- Keybinds/Extras
+                            aA,
+                            aC,
+                            ak(
+                                "Frame",
+                                {
+                                    Size = UDim2.new(1, 0, 0, as.Topbar.Height),
+                                    BackgroundTransparency = 1,
+                                    BackgroundColor3 = Color3.fromRGB(50, 50, 50),
+                                    Name = "Topbar"
+                                },
+                                {
+                                    aB,
+                                    ak(
+                                        "Frame",
+                                        {
+                                            AutomaticSize = "X",
+                                            Size = UDim2.new(0, 0, 1, 0),
+                                            BackgroundTransparency = 1,
+                                            Name = "Left"
+                                        },
+                                        {
+                                            ak(
+                                                "UIListLayout",
+                                                {
+                                                    Padding = UDim.new(0, as.UIPadding + 4),
+                                                    SortOrder = "LayoutOrder",
+                                                    FillDirection = "Horizontal",
+                                                    VerticalAlignment = "Center"
+                                                }
+                                            ),
+                                            ak(
+                                                "Frame",
+                                                {
+                                                    AutomaticSize = "XY",
+                                                    BackgroundTransparency = 1,
+                                                    Name = "Title",
+                                                    Size = UDim2.new(0, 0, 1, 0),
+                                                    LayoutOrder = 2
+                                                },
+                                                {
+                                                    ak(
+                                                        "UIListLayout",
+                                                        {
+                                                            Padding = UDim.new(0, 0),
+                                                            SortOrder = "LayoutOrder",
+                                                            FillDirection = "Vertical",
+                                                            VerticalAlignment = "Center"
+                                                        }
+                                                    ),
+                                                    h,
+                                                    f
+                                                }
+                                            ),
+                                            ak(
+                                                "UIPadding",
+                                                {
+                                                    PaddingLeft = UDim.new(0, 4)
+                                                }
+                                            )
+                                        }
+                                    ),
+                                    ak(
+                                        "ScrollingFrame",
+                                        {
+                                            Name = "Center",
+                                            BackgroundTransparency = 1,
+                                            AutomaticSize = "Y",
+                                            ScrollBarThickness = 0,
+                                            ScrollingDirection = "X",
+                                            AutomaticCanvasSize = "X",
+                                            CanvasSize = UDim2.new(0, 0, 0, 0),
+                                            Size = UDim2.new(0, 0, 1, 0),
+                                            AnchorPoint = Vector2.new(0, 0.5),
+                                            Position = UDim2.new(0, 0, 0.5, 0),
+                                            Visible = false
+                                        },
+                                        {
+                                            ak(
+                                                "UIListLayout",
+                                                {
+                                                    FillDirection = "Horizontal",
+                                                    VerticalAlignment = "Center",
+                                                    HorizontalAlignment = "Left",
+                                                    Padding = UDim.new(0, as.UIPadding / 2)
+                                                }
+                                            )
+                                        }
+                                    ),
+                                    ak(
+                                        "Frame",
+                                        {
+                                            AutomaticSize = "XY",
+                                            BackgroundTransparency = 1,
+                                            Position = UDim2.new(
+                                                as.Topbar.ButtonsType == "Default" and 1 or 0,
+                                                0,
+                                                0.5,
+                                                0
+                                            ),
+                                            AnchorPoint = Vector2.new(
+                                                as.Topbar.ButtonsType == "Default" and 1 or 0,
+                                                0.5
+                                            ),
+                                            Name = "Right"
+                                        },
+                                        {
+                                            ak(
+                                                "UIListLayout",
+                                                {
+                                                    Padding = UDim.new(0, as.Topbar.ButtonsType == "Default" and 9 or 0),
+                                                    FillDirection = "Horizontal",
+                                                    SortOrder = "LayoutOrder"
+                                                }
+                                            )
+                                        }
+                                    ),
+                                    ak(
+                                        "UIPadding",
+                                        {
+                                            PaddingTop = UDim.new(0, as.UIPadding),
+                                            PaddingLeft = UDim.new(
+                                                0,
+                                                as.Topbar.ButtonsType == "Default" and as.UIPadding or as.UIPadding - 2
+                                            ),
+                                            PaddingRight = UDim.new(0, 8),
+                                            PaddingBottom = UDim.new(0, as.UIPadding)
+                                        }
+                                    )
+                                }
+                            )
                         }
                     )
                 }
             )
-
 
             aj.AddSignal(
                 as.UIElements.Main.Main.Topbar.Left:GetPropertyChangedSignal "AbsoluteSize",
@@ -16572,324 +16665,6 @@ function aa.CreateWindow(ax, ay)
     end
 
     return aE
-end
-
-
--- [ XZNE LIBRARY IMPROVEMENTS ] -------------------------------------------
-
-aa.Version = "XZNE Lib v1.0"
-aa.Author = "Xzero One / XZNE Team"
-
--- 1. Add Custom XZNE Theme
-aa:AddTheme({
-    Name = "XZNE",
-    
-    Accent = Color3.fromHex("#FF004D"), -- XZNE Red
-    Dialog = Color3.fromHex("#1a1a1a"),
-    Outline = Color3.fromHex("#FF004D"),
-    Text = Color3.fromHex("#ffffff"),
-    Placeholder = Color3.fromHex("#a0a0a0"),
-    Button = Color3.fromHex("#2b2b2b"),
-    Icon = Color3.fromHex("#FF004D"),
-    
-    WindowBackground = Color3.fromHex("#0f0f0f"),
-    WindowShadow = Color3.fromHex("#FF004D"),
-    
-    TopbarButtonIcon = Color3.fromHex("#FF004D"),
-    TopbarTitle = Color3.fromHex("#ffffff"),
-    TopbarAuthor = Color3.fromHex("#b0b0b0"),
-    TopbarIcon = Color3.fromHex("#FF004D"),
-    
-    TabBackground = Color3.fromHex("#1a1a1a"),
-    TabTitle = Color3.fromHex("#ffffff"),
-    TabIcon = Color3.fromHex("#FF004D"),
-    
-    ElementBackground = Color3.fromHex("#1a1a1a"),
-    ElementTitle = Color3.fromHex("#ffffff"),
-    ElementDesc = Color3.fromHex("#b0b0b0"),
-    ElementIcon = Color3.fromHex("#FF004D"),
-})
-
--- 2. V5 Compatibility Layer
-function aa:MakeNotify(options)
-    options = options or {}
-    return aa:Notify({
-        Title = options.Title or "Notification",
-        Content = options.Content or options.Description or "",
-        Duration = options.Time or 5,
-        Icon = "bell", -- Default icon
-    })
-end
-
-
-    -- == XZNE LOADING SCREEN ==
-    local function ShowLoader()
-        local TweenService = game:GetService("TweenService")
-        local Players = game:GetService("Players")
-        local Lighting = game:GetService("Lighting")
-        local player = Players.LocalPlayer
-        if not player or not player:FindFirstChild("PlayerGui") then return end
-
-        local screenGui = Instance.new("ScreenGui")
-        screenGui.Name = "XZNELoader"
-        screenGui.IgnoreGuiInset = true
-        screenGui.Parent = player.PlayerGui
-
-        local blur = Instance.new("BlurEffect", Lighting)
-        blur.Size = 0
-        TweenService:Create(blur, TweenInfo.new(0.5), {Size = 24}):Play()
-
-        local bg = Instance.new("Frame")
-        bg.Size = UDim2.new(1, 0, 1, 0)
-        bg.BackgroundColor3 = Color3.fromRGB(10, 10, 15)
-        bg.BackgroundTransparency = 1
-        bg.Parent = screenGui
-        TweenService:Create(bg, TweenInfo.new(0.5), {BackgroundTransparency = 0.2}):Play()
-
-        local word = "XZNESCRIPTHUB"
-        local letters = {}
-        local startX = 0.5 - (#word * 35 / 2) / screenGui.AbsoluteSize.X -- Approximation
-
-        for i = 1, #word do
-            local char = word:sub(i, i)
-            local label = Instance.new("TextLabel")
-            label.Text = char
-            label.Font = Enum.Font.GothamBlack
-            label.TextColor3 = Color3.new(1, 1, 1)
-            label.TextSize = 40
-            label.TextTransparency = 1
-            label.Size = UDim2.new(0, 40, 0, 80)
-            label.Position = UDim2.new(0.5, (i - (#word/2 + 0.5)) * 45, 0.5, 0)
-            label.AnchorPoint = Vector2.new(0.5, 0.5)
-            label.BackgroundTransparency = 1
-            label.Parent = bg
-
-            -- Gradient
-            local gradient = Instance.new("UIGradient")
-            if i <= 4 then -- XZNE (Cyan/Blue)
-                gradient.Color = ColorSequence.new({
-                     ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 255, 255)),
-                     ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 150, 255))
-                })
-            else -- SCRIPTHUB (White/Gray)
-                 gradient.Color = ColorSequence.new({
-                     ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
-                     ColorSequenceKeypoint.new(1, Color3.fromRGB(180, 180, 180))
-                })
-            end
-            gradient.Rotation = 90
-            gradient.Parent = label
-
-            -- Animate In
-            task.delay(i * 0.05, function()
-                TweenService:Create(label, TweenInfo.new(0.4, Enum.EasingStyle.Back), {TextTransparency = 0, TextSize = 55}):Play()
-            end)
-            table.insert(letters, label)
-        end
-
-        task.wait(2.5) -- Hold
-
-        -- Animate Out
-        for i, label in ipairs(letters) do
-             TweenService:Create(label, TweenInfo.new(0.3), {TextTransparency = 1, Position = label.Position + UDim2.new(0,0,0,-50)}):Play()
-        end
-        TweenService:Create(bg, TweenInfo.new(0.5), {BackgroundTransparency = 1}):Play()
-        TweenService:Create(blur, TweenInfo.new(0.5), {Size = 0}):Play()
-        
-        task.wait(0.5)
-        screenGui:Destroy()
-        blur:Destroy()
-    end
-
-    function aa:MakeGui(options)
-        -- Trigger Loading Screen
-        spawn(ShowLoader)
-    
-        options = options or {}
-        
-        -- Map V5 options to XZNELib (WindUI) options
-        local windowOptions = {
-            Title = options.NameHub or "XZNE Hub",
-            Author = options.Description, -- Map Description to Author or Subtitle
-            Folder = "XZNELib_Config",
-            Icon = "shield", -- Default XZNE icon
-            Theme = "XZNE", -- Force new theme
-            NewElements = true,
-            Transparent = true,
-            SideBarWidth = 180, -- Adjusted for split layout
-        }
-        
-        local window = aa:CreateWindow(windowOptions)
-
-    
-    -- == Window Wrappers ==
-    
-    function window:DestroyGui()
-        window:Destroy()
-    end
-    
-    function window:CreateTab(tabOptions)
-        tabOptions = tabOptions or {}
-        local tabTitle = tabOptions.Name or "Tab"
-        local tabIcon = tabOptions.Icon or "house"
-        
-        -- Fix icon format if it's rbxassetid (WindUi prefers names or rbxassetid, but let's handle both)
-        if not tostring(tabIcon):find("rbxasset") and not tostring(tabIcon):find("http") then
-             -- Assume it's a lucide icon name, pass as is
-        elseif tostring(tabIcon):find("rbxasset") then
-             -- If it's a raw rbxassetid, WindUi handles it usually
-        end
-
-        local tab = window:Tab({
-            Title = tabTitle,
-            Icon = tabIcon
-        })
-        
-        -- == Tab Wrappers ==
-        
-        function tab:AddSection(sectionTitle)
-            local section = tab:Section({
-                Title = sectionTitle
-            })
-            
-            -- == Section Wrappers ==
-            
-            function section:AddButton(btnOpts)
-                btnOpts = btnOpts or {}
-                local callback = btnOpts.Callback or function() end
-                
-                local btn = section:Button({
-                    Title = btnOpts.Title or "Button",
-                    Desc = btnOpts.Content,
-                    Icon = btnOpts.Icon,
-                    Callback = callback
-                })
-                return btn
-            end
-            
-            function section:AddToggle(togOpts)
-                togOpts = togOpts or {}
-                local callback = togOpts.Callback or function() end
-                
-                local toggle = section:Toggle({
-                    Title = togOpts.Title or "Toggle",
-                    Desc = togOpts.Content,
-                    Value = togOpts.Default or false,
-                    Callback = callback
-                })
-                
-                -- V5 Toggle returns object with :Set()
-                function toggle:Set(val)
-                    toggle:SetValue(val) -- WindUI method
-                end
-                
-                return toggle
-            end
-            
-            function section:AddSlider(sliderOpts)
-                sliderOpts = sliderOpts or {}
-                local callback = sliderOpts.Callback or function() end
-                
-                local slider = section:Slider({
-                    Title = sliderOpts.Title or "Slider",
-                    Desc = sliderOpts.Content,
-                    Min = sliderOpts.Min or 0,
-                    Max = sliderOpts.Max or 100,
-                    Default = sliderOpts.Default or 50,
-                    Step = sliderOpts.Increment or 1,
-                    Callback = callback
-                })
-                
-                function slider:Set(val)
-                     slider:SetValue(val)
-                end
-                
-                return slider
-            end
-            
-            function section:AddInput(inputOpts)
-                inputOpts = inputOpts or {}
-                local callback = inputOpts.Callback or function() end
-                
-                local input = section:Input({
-                    Title = inputOpts.Title or "Input",
-                    Desc = inputOpts.Content,
-                    Value = inputOpts.Default or "",
-                    Placeholder = "Enter text...",
-                    Callback = callback
-                })
-                
-                function input:Set(val)
-                    input:SetValue(val)
-                end
-                
-                return input
-            end
-            
-            function section:AddDropdown(dropOpts)
-                dropOpts = dropOpts or {}
-                local callback = dropOpts.Callback or function() end
-                
-                local dropdown = section:Dropdown({
-                    Title = dropOpts.Title or "Dropdown",
-                    Desc = dropOpts.Content,
-                    Values = dropOpts.Options or {},
-                    Value = dropOpts.Default,
-                    Multi = dropOpts.Multi or false,
-                    Callback = callback
-                })
-                
-                function dropdown:Refresh(newOptions, newDefault)
-                     dropdown:SetValues(newOptions)
-                     if newDefault then
-                         dropdown:SetValue(newDefault)
-                     end
-                end
-                
-                return dropdown
-            end
-            
-            function section:AddParagraph(paraOpts)
-                paraOpts = paraOpts or {}
-                local para = section:Paragraph({
-                    Title = paraOpts.Title or "Paragraph",
-                    Content = paraOpts.Content or ""
-                })
-                
-                function para:Set(newContent)
-                    -- WindUi Paragraph usually has :SetTitle or :SetContent? 
-                    -- Let's try to find a way to update it, or re-create.
-                    -- WindUi Paragraph object typically has .Desc property update support if reactive
-                    if para.SetDesc then para:SetDesc(newContent) end
-                end
-                
-                return para
-            end
-            
-            return section
-        end
-        return tab
-    end
-    return window
-end
-
-function aa:GetDocumentation()
-    print("========================================")
-    print("       XZNE LIBRARY DOCUMENTATION       ")
-    print("========================================")
-    print("Use: local Library = loadstring(readfile('lib/XZNELib.lua'))()")
-    print("Methods:")
-    print("  Library:MakeGui({NameHub, Description, Color})")
-    print("  Library:MakeNotify({Title, Content, Time})")
-    print("  Window:CreateTab({Name, Icon})")
-    print("  Tab:AddSection(Title)")
-    print("  Section:AddButton({Title, Content, Callback})")
-    print("  Section:AddToggle({Title, Content, Default, Callback})")
-    print("  Section:AddSlider({Title, Content, Min, Max, Default, Increment})")
-    print("  Section:AddInput({Title, Content, Default, Callback})")
-    print("  Section:AddDropdown({Title, Content, Options, Default, Multi, Callback})")
-    print("  Section:AddParagraph({Title, Content})")
-    print("========================================")
 end
 
 return aa

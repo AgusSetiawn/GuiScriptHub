@@ -621,17 +621,25 @@ function S9_:MakeGui(S91_arg0)
 	S110_.Size = UDim2.new(1, -9, 1, -9)
 	S110_.Parent = S109_
 
-	S111_.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-	S111_.BackgroundTransparency = 0.9990000128746033
+	-- LEFT TAB PANEL (Island Style)
+	S111_.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
+	S111_.BackgroundTransparency = 0.2
 	S111_.BorderColor3 = Color3.fromRGB(0, 0, 0)
 	S111_.BorderSizePixel = 0
-	S111_.Position = UDim2.new(0, 9, 0, 50)
-	S111_.Size = UDim2.new(0, S92_["Tab Width"], 1, -130) -- Changed: reduced height to make room for greeting
+	S111_.Position = UDim2.new(0, 12, 0, 50)
+	S111_.Size = UDim2.new(0, S92_["Tab Width"], 1, -135) -- Changed: reduced height to make room for greeting
 	S111_.Name = "LayersTab"
 	S111_.Parent = S97_
 
-	S112_.CornerRadius = UDim.new(0, 2)
+	S112_.CornerRadius = UDim.new(0, 8)
 	S112_.Parent = S111_
+	
+	-- Add shadow to tab island
+	local TabStroke = Instance.new("UIStroke");
+	TabStroke.Color = Color3.fromRGB(50, 50, 50)
+	TabStroke.Thickness = 1
+	TabStroke.Transparency = 0.5
+	TabStroke.Parent = S111_
 	
 	-- User Greeting Panel (NEW 3-PANEL FEATURE)
 	local UserGreeting = Instance.new("Frame");
@@ -639,16 +647,24 @@ function S9_:MakeGui(S91_arg0)
 	local UserNameLabel = Instance.new("TextLabel");
 	local WelcomeLabel = Instance.new("TextLabel");
 	
-	UserGreeting.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-	UserGreeting.BackgroundTransparency = 0.3
+	-- GREETING ISLAND
+	UserGreeting.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
+	UserGreeting.BackgroundTransparency = 0.2
 	UserGreeting.BorderSizePixel = 0
-	UserGreeting.Position = UDim2.new(0, 9, 1, -75)
+	UserGreeting.Position = UDim2.new(0, 12, 1, -78)
 	UserGreeting.Size = UDim2.new(0, S92_["Tab Width"], 0, 70)
 	UserGreeting.Name = "UserGreeting"
 	UserGreeting.Parent = S97_
 	
-	GreetingCorner.CornerRadius = UDim.new(0, 6)
+	GreetingCorner.CornerRadius = UDim.new(0, 8)
 	GreetingCorner.Parent = UserGreeting
+	
+	-- Add shadow to greeting island
+	local GreetingShadowStroke = Instance.new("UIStroke");
+	GreetingShadowStroke.Color = Color3.fromRGB(50, 50, 50)
+	GreetingShadowStroke.Thickness = 1
+	GreetingShadowStroke.Transparency = 0.5
+	GreetingShadowStroke.Parent = UserGreeting
 	
 	WelcomeLabel.Font = Enum.Font.GothamBold
 	WelcomeLabel.Text = "Welcome,"
@@ -689,17 +705,25 @@ function S9_:MakeGui(S91_arg0)
 	S113_.Name = "DecideFrame"
 	S113_.Parent = S97_
 
-	S115_.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-	S115_.BackgroundTransparency = 0.9990000128746033
+	-- RIGHT CONTENT PANEL (Island Style)
+	S115_.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
+	S115_.BackgroundTransparency = 0.2
 	S115_.BorderColor3 = Color3.fromRGB(0, 0, 0)
 	S115_.BorderSizePixel = 0
-	S115_.Position = UDim2.new(0, S92_["Tab Width"] + 18, 0, 50)
-	S115_.Size = UDim2.new(1, - (S92_["Tab Width"] + 9 + 18), 1, -59)
+	S115_.Position = UDim2.new(0, S92_["Tab Width"] + 24, 0, 50)
+	S115_.Size = UDim2.new(1, - (S92_["Tab Width"] + 36), 1, -62)
 	S115_.Name = "Layers"
 	S115_.Parent = S97_
 
-	S116_.CornerRadius = UDim.new(0, 2)
+	S116_.CornerRadius = UDim.new(0, 8)
 	S116_.Parent = S115_
+	
+	-- Add shadow to content island
+	local ContentStroke = Instance.new("UIStroke");
+	ContentStroke.Color = Color3.fromRGB(50, 50, 50)
+	ContentStroke.Thickness = 1
+	ContentStroke.Transparency = 0.5
+	ContentStroke.Parent = S115_
 
 	S117_.Font = Enum.Font.GothamBold
 	S117_.Text = ""

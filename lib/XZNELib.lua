@@ -16667,4 +16667,18 @@ function aa.CreateWindow(ax, ay)
     return aE
 end
 
+-- ====================================
+-- V5 API COMPATIBILITY WRAPPER
+-- ====================================
+
+-- Expose MakeNotify as V5-style method
+function aa:MakeNotify(options)
+    return aa:Notify(options)
+end
+
+-- Expose MakeGui as V5-style entry point
+function aa:MakeGui(options)
+    return aa:Create(options)
+end
+
 return aa

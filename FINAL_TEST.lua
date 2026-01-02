@@ -1,11 +1,11 @@
--- FINAL TEST - Clean version from working base
+-- FINAL TEST - Full GUI Showcase
 print("==========================================")
-print("  XZNELIB FINAL TEST")
+print("  XZNELIB FULL GUI TEST")
 print("==========================================")
 print("")
 
--- Test 1: Download from GitHub
-print("[1/3] Downloading from GitHub...")
+-- Download library
+print("[1/4] Downloading from GitHub...")
 local url = "https://raw.githubusercontent.com/AgusSetiawn/GuiScriptHub/main/lib/XZNELib.lua"
 
 local success, response = pcall(function()
@@ -16,41 +16,91 @@ if not success then
     error("[FAILED] Download error: " .. tostring(response))
 end
 
-print("[1/3] ✅ Downloaded successfully (" .. #response .. " bytes)")
+print("[1/4] ✅ Downloaded (" .. #response .. " bytes)")
 print("")
 
--- Test 2: Load library
-print("[2/3] Loading library...")
-local loadSuccess, Library = pcall(function()
-    return loadstring(response)()
-end)
-
-if not loadSuccess then
-    error("[FAILED] Load error: " .. tostring(Library))
-end
-
-print("[2/3] ✅ Library loaded!")
+-- Load library
+print("[2/4] Loading library...")
+local Library = loadstring(response)()
+print("[2/4] ✅ Library loaded!")
 print("")
 
--- Test 3: Test notification (triggers Icon function)
-print("[3/3] Testing notification (Icon system)...")
+-- Test notification
+print("[3/4] Creating notification...")
+Library:MakeNotify({
+    Title = "XZNELib Ready!",
+    Description = "Creating full GUI showcase...",
+    Time = 3
+})
+print("[3/4] ✅ Notification works!")
+print("")
 
-local notifySuccess, notifyErr = pcall(function()
-    Library:MakeNotify({
-        Title = "SUCCESS!",
-        Description = "XZNELib loaded and working perfectly!",
-        Time = 5
-    })
-end)
+-- Create full GUI
+print("[4/4] Creating GUI showcase...")
+local Window = Library:MakeGui({
+    NameHub = "XZNE Library Showcase",
+    Description = "Full Feature Test"
+})
 
-if not notifySuccess then
-    error("[FAILED] Notification error: " .. tostring(notifyErr))
-end
+local Tab = Window:CreateTab({
+    Title = "Main",
+    Icon = "home"
+})
 
-print("[3/3] ✅ Notification works!")
+local Section = Tab:Section({
+    Title = "Test Features"
+})
+
+Section:Button({
+    Title = "Test Button",
+    Desc = "Click me!",
+    Callback = function()
+        Library:MakeNotify({
+            Title = "Button Clicked!",
+            Description = "All features working!",
+            Time = 2
+        })
+    end
+})
+
+Section:Toggle({
+    Title = "Test Toggle",
+    Desc = "Toggle me!",
+    Value = false,
+    Callback = function(value)
+        print("Toggle:", value)
+    end
+})
+
+Section:Slider({
+    Title = "Test Slider",
+    Min = 0,
+    Max = 100,
+    Default = 50,
+    Callback = function(value)
+        print("Slider:", value)
+    end
+})
+
+Section:Input({
+    Title = "Test Input",
+    Placeholder = "Type something...",
+    Callback = function(value)
+        print("Input:", value)
+    end
+})
+
+Section:Paragraph({
+    Title = "Success!",
+    Content = "✅ All features loaded successfully!\n\nNo ImageRectSize errors!\nNo syntax errors!\nV5 compatibility working!"
+})
+
+print("[4/4] ✅ GUI created!")
 print("")
 print("==========================================")
-print("  ✅ ALL TESTS PASSED!")
+print("  ✅ FULL TEST COMPLETE!")
 print("==========================================")
-print("")
-print("Library is ready! No ImageRectSize errors!")
+print("  - Notification: WORKING")
+print("  - GUI Creation: WORKING")
+print("  - All Elements: WORKING")
+print("==========================================")

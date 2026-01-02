@@ -115,8 +115,16 @@ do
             return { id, rect }
         end
 
-        function l.AddIcons(json_content, type_name) end
-        function l.Init(ctor, name) end
+        function l.AddIcons(json_content, type_name) 
+            -- Stub: Original WindUI loads icons from JSON, we use local map
+        end
+        
+        function l.Init(ctor, name) 
+            -- Initialize icon system with constructor reference
+            -- ctor = p.New function reference
+            -- name = "Icon" (identifier)
+            -- This was originally used to setup icon loading, now just a placeholder
+        end
         
         -- Fix Image signature to match call at line 1054: 
         -- b.Image(i.Icon, i.Title .. ":" .. i.Icon, 0, h.Window, "Notification", i.IconThemed)
